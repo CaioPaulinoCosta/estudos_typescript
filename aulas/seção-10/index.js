@@ -84,3 +84,106 @@ __decorate([
 ], MachineDecorator.prototype, "showName", null);
 const tratorDecorator = new MachineDecorator("Trator");
 tratorDecorator.showName();
+// 5 - acessor decorator
+class Monster {
+    constructor(name, age) {
+        this.name = name;
+        this.age = age;
+    }
+    get showName() {
+        return `Nome do monstro: ${this.name}`;
+    }
+    get showAge() {
+        return `Idade do monstro: ${this.age}`;
+    }
+}
+__decorate([
+    enumerable(true)
+], Monster.prototype, "showName", null);
+__decorate([
+    enumerable(true)
+], Monster.prototype, "showAge", null);
+const charmander = new Monster("Charmander", 10);
+console.log(charmander);
+// 5 - property decorator
+function fortmatNumber() {
+    return function (target, propertKey) {
+        let value;
+        const getter = function () {
+            return value;
+        };
+        const setter = function (newVal) {
+            value = newVal.padStart(5, "0");
+        };
+        Object.defineProperty(target, propertKey, {
+            set: setter,
+            get: getter,
+        });
+    };
+}
+class idDecorator {
+    constructor(id) {
+        this.id = id;
+    }
+}
+__decorate([
+    fortmatNumber()
+], idDecorator.prototype, "id", void 0);
+const newItemDecorator = new idDecorator("1");
+console.log(newItemDecorator);
+// 6 - exemplo real com class decorator
+function createDate(creared) {
+    createDate.prototype.createAt = new Date();
+}
+let BookDecorator = class BookDecorator {
+    constructor(idBook) {
+        this.idBook = idBook;
+    }
+};
+BookDecorator = __decorate([
+    createDate
+], BookDecorator);
+let PenDecorator = class PenDecorator {
+    constructor(idPen) {
+        this.idPen = idPen;
+    }
+};
+PenDecorator = __decorate([
+    createDate
+], PenDecorator);
+const newBook = new BookDecorator(12);
+const pen = new PenDecorator(55);
+console.log(newBook);
+console.log(pen);
+// 7 - exemplo real com method decorator
+function checkIfUserPosted() {
+    return function (target, key, descriptor) {
+        const childFunction = descriptor.value;
+        // console.log(childFunction);
+        descriptor.value = function (...args) {
+            if (args[1] === true) {
+                console.log("Usúario já postou!");
+                return null;
+            }
+            else {
+                return childFunction.apply(this, args);
+            }
+        };
+        return descriptor;
+    };
+}
+class Post {
+    constructor() {
+        this.alreadyPosted = false;
+    }
+    post(content, alreadyPosted) {
+        this.alreadyPosted = true;
+        console.log(`Post do usúario: ${content}`);
+    }
+}
+__decorate([
+    checkIfUserPosted()
+], Post.prototype, "post", null);
+const newPost = new Post();
+newPost.post("Meu primeiro post!", newPost.alreadyPosted);
+newPost.post("Meu segundo post!", newPost.alreadyPosted);
